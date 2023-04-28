@@ -1,0 +1,116 @@
+\documentclass[10pt]{ctexart}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{graphicx,booktabs}
+\usepackage{float,bm}
+\usepackage{subfigure}
+\author{2000012425 张弛}
+\title{计算物理第三次作业}
+\CTEXsetup[format={\Large\bfseries}]{section}
+\newtheorem*{answer}{答}
+\newtheorem*{solution}{解}
+\newtheorem*{fuck}{证明}
+\begin{document}
+\maketitle
+1.假设积分区间$[0,\infty]$，权函数为$exp{-x}$，请计算给出前三项正交多项式（即
+$p0,p1,p2,$其中$p2$为二阶多项式），并给出$p2$对应的高斯点的值$x1$和$x2$；利用$x1$
+和$x2$，来计算积分$\infty_{0}^{\infty}\ln{1-e^{-x}}dx$（权重因子可以推导或查文献）
+\begin{solution}
+    前三项正交多项式是方便的，直接施密特正交化即可。
+    \begin{align}
+        p_0&=1,\nonumber\\
+        p_1&=x-\frac{(x,p_0)}{(p_0,p_0)}p_0=x-1,\nonumber\\
+        p_2&=x^2-\frac{(x^2,p_0)}{(p_0,p_0)}p_0-\frac{(x^2,p_1)}{(p_1,p_1)}p_1=x^2-4x+2.\nonumber
+    \end{align}
+    对应$p_2$的高斯点为其两个零点
+    $$x_1=2-\sqrt{2},x_2=2+\sqrt{2}.$$
+    下面求积分参数，列出两个方程即可
+    \begin{align}
+        A_0+A_1&=1,\nonumber\\
+        (2-\sqrt{2})A_0+(2+\sqrt{2})A_1&=1.\nonumber
+    \end{align}
+    解得
+    $$A_0=\frac{2+\sqrt{2}}{4},A_1=\frac{2-\sqrt{2}}{4}.$$
+    那么高斯积分法
+    $$I_1=A_0f(x_1)+A_1f(x_2).$$
+    其中
+    $$f(x)=\ln{(1-e^{-x})}e^x.$$
+    计算得到
+    $$I_1=-1.39617.$$
+    这误差不小，准确值为$-\frac{\pi^2}{6}=-1.64439.$
+\end{solution}
+2.利用梯形法则、辛普森法则以及Gauss-Chebyshev方法，给出下面积分的数值结果：
+$$\int_{1}^{100}exp(-x)/xdx $$
+其中梯形法则、辛普森法的格点数分别为$10,100,1000$(格点包括左右端点)。Gauss-Chebyshev方法格点数为$10,100$。
+\begin{solution}
+    对于积分段$[a,b]$，梯形法则
+    $$P_1(x)=\frac{b-a}{2}[f(a)+f(b)].$$
+    辛普森法则
+    $$P_2(x)=\frac{b-a}{6}\left[f(a)+4f\left(\frac{a+b}{2}\right)+f(b)\right].$$
+    将区间$[1,100]$分成9段，99段，999段，对每一段使用梯形法则、辛普森法则。借助程序“HW3计物第二题Newton.py”得到如下结果
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{cccc}
+            \toprule
+            n & 10 & 100 & 1000\\
+            \midrule
+            梯形法则 & 2.023e+00 & 2.747e-01 & 2.200e-01\\
+            Simpson & 6.761e-01 & 2.208e-01 & 2.194e-01\\
+            \bottomrule
+        \end{tabular}
+        \caption{梯形法则与辛普森法则积分公式结果}
+    \end{table}
+    对于Gauss-Chebyshev方法，先令
+    $$t=\frac{2}{99}x-\frac{101}{99},x=\frac{99}{2}t+\frac{101}{2},dx=\frac{99}{2}dt.$$
+    那么积分变为
+    $$\frac{99}{e^{101/2}}\int_{-1}^{1}\frac{e^{-99/2t}}{99t+101}dt.$$
+    考虑使用的正交多项式是Chebyshev多项式，认为被加权积分的函数是
+    $$f(x)=\frac{99}{e^{101/2}}\frac{e^{-99/2x}}{99x+101}\sqrt{1-x^2}.$$
+    认为Chebyshev多项式形式已知，高斯积分节点$x_i$已知，权重$\omega_i$通过解线性方程组
+    $$\sum\limits_{i=1}^{n}p_k(x_i)\omega_i=\left\{
+        \begin{align}
+            &(p_0,p_0)=\pi,k=0\\
+            &0,k=1,2,\cdots,n-1
+        \end{align}
+        \right.$$
+    得到。具体节点和权重不列出了。最后的结果相当于
+    $$I=\int_{1}^{100}exp(-x)/xdx=\int_{-1}^{1}f(x)\frac{1}{\sqrt{1-x^2}}dx=\sum\limits_{i=1}^{n}\omega_{i}f(x_i).$$
+    借助程序“HW3计算物理第二题Gauss.np”计算得到如下结果
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{ccc}
+            \toprule
+            n & 10 & 100\\
+            \midrule
+            Gauss-Chebyshev & 3.042e-01 & 2.201e-01\\
+            \bottomrule
+        \end{tabular}
+        \caption{Gauss-Chebyshev方法结果}
+    \end{table}
+    最终结果与前两种方法大致相同。
+\end{solution}
+3.利用二分法、牛顿-Raphson法以及割线法，求解下列方程的正根：
+$$x^2-4x\sin{x}+(2\sin{x})^2=0.$$
+\begin{solution}
+    先处理一下
+    $$x=2\sin{x}.$$
+    对二分法，记
+    $$f(x)=x-2\sin{x}.$$
+    确信
+    $$f(1)<0,f(2)>0.$$
+    则初始边界设为
+    $$a=1,b=2.$$
+    精度取到小数点后六位。借助程序“HW3计物第三题二分法.py”得到结果
+    $$x=1.895493984e+00.$$
+
+    对Newton-Ralphson方法，依旧使用上面的$f(x)$，导数
+    $$f'(x)=1-2\cos{x}.$$
+    初始取$x_0=1$是合适的。取精度限制$|f(x)|<1e-6$以及$|x_k-x_{k+1}|<1e-6$。借助程序“HW3计物第三题NR.py”得到如下结果
+    $$x=1.895494267e+00.$$
+    结果和二分法很一致，在小数后六位出现不一致。
+
+    对割线法，几乎完全和上面一样。取初始$$x_1=0.9,x_2=1$$借助程序“HW3计物第三题割线法.py”得到如下结果
+    $$x=1.895494267e+00.$$
+    结果和Newton-Ralphson方法很一致。
+\end{solution}
+\end{document}
