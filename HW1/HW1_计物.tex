@@ -1,0 +1,433 @@
+\documentclass[10pt]{ctexart}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{graphicx,booktabs}
+\usepackage{float,bm}
+\usepackage{subfigure}
+\author{2000012425 张弛}
+\title{计算物理第一次作业}
+\CTEXsetup[format={\Large\bfseries}]{section}
+\newtheorem*{answer}{答}
+\newtheorem*{solution}{解}
+\newtheorem*{fuck}{证明}
+\begin{document}
+\maketitle
+1.对$x$从$0$到$100$，以$10$为步长，编写程序，比较、讨论三种计算$e^{-x}$的方法。
+\begin{answer}
+程序“$HW1$计物第一题”。循环终止条件为求和相对变化量不超过$10^{-12}$，所得结果如下。
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccccccc}
+\toprule
+x & 0 & 10 & 20 & 30 & 40 & 50 \\
+\midrule
+方法1 & 1.000e+00 & 4.540e-05 &5.478e-10 & -8.553e-05 &1.470e-01 &-7.016e+03 \\
+方法2 & 1.000e+00 & 4.540e-05 & 5.622e-09 & -3.067e-05 & -3.166e+00 & 1.107e+04 \\
+方法3 & 1.000e+00 & 4.540e-05 & 2.061e-09 & 9.358e-14 & 4.248e-18  & 1.929e-22 \\
+实际值 & 1.000e+00 & 4.540e-05 & 2.061e-09 &  9.358e-14 & 4.248e-18 & 1.929e-22\\
+\bottomrule
+\toprule
+    x &60 & 70 & 80 & 90 &100& \\
+    \midrule
+    方法1 & -1.223e+09 & 1.514e+13 &6.772e+17 & -7.885e+21 &-2.876e+26& \\
+    方法2 & -3.352e+08 & -3.298e+13 & 9.181e+16 & -5.052e+21 & -2.914e+25 &  \\
+    方法3 &  8.757e-27 & 3.975e-31 & 1.805e-35 & 8.194e-40 & 3.720e-44  &  \\
+    实际值 & 8.757e-27 & 3.975e-31 & 1.805e-35 &  8.194e-40 & 3.720e-44 & \\
+    \bottomrule
+    \end{tabular}
+\caption{三种方法的的计算结果}
+\end{table}
+
+这里的实际值是用python库numpy中的自然指数numpy.math.e直接乘方得到的。可以看到三种方法中
+只有第三种的计算结果较为准确，精度至少保留四位有效数字，前两种方法在x绝对值较大时产生了显著的错误。
+这是因为在前两种方法的计算过程中，每一轮进行的都是减法，出现了大数相消，高位的信息丢失不断被放大，最后产生了完全错误的结果。
+
+而前两种计算方法也有一些不同，可以发现第二种方法的计算次数比第一种方法少，这可以从计算时间的比较得到印证。
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ccccccc}
+        \toprule
+        x & 0 & 10 & 20 & 30 & 40 & 50\\
+        \midrule
+        方法1 &0.000e+00&0.000e+00&0.000e+00&0.000e+00&0.000e+00&1.006e-03\\
+        方法2 &0.000e+00&0.000e+00&0.000e+00&0.000e+00&0.000e+00&0.000e+00\\
+        \bottomrule
+        \toprule
+        x & 60 & 70 & 80 & 90 & 100\\
+        \midrule
+        方法1 & 0.000e+00& 0.000e+00&9.971e-04&9.971e-04&9.973e-04\\
+        方法2 &0.000e+00&0.000e+00&0.000e+00&0.000e+00&0.000e+00\\
+        \bottomrule
+    \end{tabular}
+    \caption{前两种方法的计算时间}
+\end{table}
+
+可以看出第一种方法的用时比第二种方法的用时更多。方法二稳定性更强，不过计算结果姑且体现不出来这一点。
+\end{answer}
+2.\textbf{矩阵的模和条件数}\  考虑一个具体的上三角矩阵$A\in \mathbb{R}^{n\times n}$，其所有对角元都为$1$，而所有上三角部分都为$-1$。
+
+(a)计算矩阵$A$的行列式，说明$A$的确不是奇异矩阵。
+\begin{solution}
+    显然可以直接计算得到
+    $$\det{A}=1\neq 0.$$
+    则不是奇异矩阵。
+\end{solution}
+(b)给出矩阵的逆矩阵$A^{-1}$的形式。
+\begin{solution}
+    可以用初等行变换的方法得到逆矩阵。
+    $$\begin{pmatrix}
+        1 & -1 & -1 & & -1 & 1 & 0 & 0 & & 0\\
+        0 & 1 & -1 &\cdots & -1 & 0 & 1 & 0 &\cdots& 0\\
+        0 & 0 & 1 & & -1 & 0 & 0 & 1 & & 0\\
+          & \vdots & & \ddots &\vdots& & \vdots & & \ddots &\vdots\\
+        0 & 0 & 0 &\cdots & 1 & 0 & 0 & 0 &\cdots& 1
+    \end{pmatrix}\rightarrow
+    \begin{pmatrix}
+        1 & 0 & 0 & & 0 & 1 & 1 & 2 & & 2^{n-1}\\
+        0 & 1 & 0 &\cdots & 0 & 0 & 1 & 1 &\cdots& 2^{n-2}\\
+        0 & 0 & 1 & & 0 & 0 & 0 & 1 & & 2^{n-3}\\
+          & \vdots & & \ddots &\vdots& & \vdots & & \ddots &\vdots\\
+        0 & 0 & 0 &\cdots & 1 & 0 & 0 & 0 &\cdots& 1
+    \end{pmatrix}.$$
+    则
+    $$A^{-1}=
+    \begin{pmatrix}
+        1 & 1 & 2 & & 2^{n-1}\\
+        0 & 1 & 1 &\cdots& 2^{n-2}\\
+        0 & 0 & 1 & & 2^{n-3}\\
+          &\vdots& & \ddots & \vdots\\
+        0 & 0 & 0 &\cdots & 1
+    \end{pmatrix}.$$
+\end{solution}
+(c)如果采用矩阵$p$模的定义
+$$\lVert A\rVert_p=\sup\limits_{x\neq 0}{\frac{\lVert Ax\rVert_p}{\lVert x\rVert_p}}.$$
+其中等式右边$\lVert\cdot\rVert_p$是标准定义的矢量$p$模，说明如果取$p\rightarrow\infty$，得到所谓$\infty$模为，
+$$\lVert A\rVert_\infty=\max\limits_{i=1,\cdots,n}{\sum\limits_{j=1}^{n}\lvert a_{ij}\rvert}.$$
+\begin{proof}
+    不妨令$\lvert x\rvert_\infty=1$，则
+    \begin{align}
+        \lVert A\rVert_{\infty}&=\sup\limits_{x\neq 0}{\lVert Ax\rVert_\infty}\notag\\
+        &=\sup\limits_{x\neq 0}\lVert\alpha_1x_1+\alpha_2x_2+\cdots+\alpha_nx_n\rVert_\infty\notag\\
+        &=\sup\limits_{x\neq 0}\max\limits_{i=1,\cdots,n}{\left\lvert\sum\limits_{j=1}^{n}a_{ij}x_j\right\rvert}\notag\\
+        &\leqslant\sup\limits_{x\neq 0}\max\limits_{i=1,\cdots,n}{\sum\limits_{j=1}^{n}\left\lvert a_{ij}x_j\right\rvert}\notag\\
+        &\leqslant\sup\limits_{x\neq 0}\max\limits_{i=1,\cdots,n}{\sum\limits_{j=1}^{n}\lvert a_{ij}\rvert \lvert x_j\rvert}\notag\\
+        &\leqslant\max\limits_{i=1,\cdots,n}{\sum\limits_{j=1}^{n}\lvert a_{ij}\rvert}\notag
+    \end{align}
+    等号可以在$x_j=sgn(a_{ij}),j=1\cdots n$时取到，则
+    $$\lVert A\rVert_\infty=\max\limits_{i=1,\cdots,n}{\sum\limits_{j=1}^{n}\lvert a_{ij}\rvert}.$$
+\end{proof}
+(d)矩阵的模有多种定义方法，一种常用的是$p=2$的欧氏模$\lVert\cdot\rVert_2$。对于幺正矩阵$U\in\mathbb{C}^{n\times n}$，证明$\lVert U\rVert_2=\lVert U^\dagger\rVert_2=1$。证明对于任意的$A
+\in\mathbb{C}^{n\times n}$，$\lVert UA\rVert_2=\lVert A\rVert_2$，因此，如果利用欧氏模定义条件数，$K_2(A)=K_2(UA)$。
+\begin{proof}
+    知有
+    $$\lVert U\rVert_2=[\rho(B^\dagger B)]^{\frac{1}{2}}=1,$$
+    $$\lVert U^\dagger\rVert_2=[\rho(B B^\dagger)]^{\frac{1}{2}}=1,$$
+    $$\lVert UA\rVert_2=[\rho(A^\dagger U^\dagger UA)]^{\frac{1}{2}}=[\rho(A^\dagger A)]^{\frac{1}{2}}=\lVert A\rVert_2.$$
+    那么
+    $$K_2(UA)=\lVert UA\rVert_2\lVert A^{-1}U^\dagger\rVert_2=\lVert A\rVert_2\lVert A^{-1}\rVert_2=K_2(A).$$
+\end{proof}
+(e)利用这个定义计算上面给出的具体的矩阵的条件数$K_\infty(A)=\lVert A\rVert_\infty\lVert A^{-1}\rVert_\infty$。
+\begin{solution}
+    易得
+    $$\lVert A\rVert_\infty=n,\lVert A^{-1}\rVert_\infty=2^n.$$
+    则
+    $$K_2(A)=n2^n.$$
+\end{solution}
+3.\textbf{Hilbert矩阵}\  本题中我们将考虑一个著名的、接近奇异的矩阵，称为Hilbert矩阵。
+
+(a)考虑区间$[0,1]$上的任意函数$f(x)$，我们试图用一个$(n-1)$次的多项式$P_n(x)=\sum_{i=1}^n c_ix^{i-1}$（从而有$n$个待定系数$c_i$）来近似$f(x)$。
+构建两者之间的差的平方的积分
+$$D=\int_{0}^{1}dx\left(\sum\limits_{i=1}^n c_ix^{i-1}-f(x)\right)^2.$$
+如果我们要求$D$取极小值，说明各个系数$c_i$所满足的方程为
+$$\sum\limits_{j=1}^{n}(H_n)_{ij}c_j=b_i,\ i=1,\cdots,n.$$
+或者简写为矩阵形式$H_n\cdot c=b$，其中$c,b\in\mathbb{R}^n$，而$H_n\in\mathbb{R}^{n\times n}$就称为$n$阶的Hilbert矩阵。给出矩阵$H_n$的矩阵元表达式和矢量$b$的表达式（用包含函数$f(x)$的积分表达）。
+\begin{solution}
+    把$D$视为$c_i$的函数，全微分
+    $$dD=\sum\limits_{i=1}^{n}\left[\int_{0}^{1}2dx \left(\sum\limits_{j=1}^n c_jx^{j-1}-f(x)\right)x^{i-1}\right]dc_i.$$
+    得到方程组
+    $$\int_{0}^{1}dx\left(\sum\limits_{j=1}^{n}c_jx^{i+j-2}\right)=\int_0^1dxf(x)x^{i-1}.$$
+    $$\Rightarrow\sum\limits_{j=1}^n\frac{c_j}{i+j-1}=\int_0^1dxf(x)x^{i-1}.$$
+    写成矩阵和矢量的形式
+    $$H_n\cdot c=b.$$
+    其中
+    $$(H_n)_{ij}=\frac{1}{i+j-1},b_i=\int_{0}^{1}dx f(x)x^{i-1}.$$
+\end{solution}
+(b)证明矩阵$H_n$是对称的正定矩阵，即对于任意的$c\in\mathbb{R}^n$，说明$c^T\cdot H_nc\geqslant0$其中等号只有当$c=0$时才会取得。进而运用线性代数的知识论证Hilbert矩阵$H_n$是非奇异的。
+\begin{proof}
+    实数域$\mathbb{R}$上的多项式环$\mathbb{R}[x]_n$构成一个实数域$\mathbb{R}$上的线性空间，在其中定义内积
+    $$(f(x),g(x))=\int_0^1 f(x)g(x)dx.$$
+    显然$1,x,x^2,\cdots,x^{n-1}$构成一组基，考虑这组基下的度量矩阵$A$，有
+    $$(A)_{ij}=\int_0^1x^{i+j-2}=\frac{1}{i+j-1}.$$
+    正好是Hilbert矩阵。作为一个内积在一组基下的度量矩阵，它必定是正定的。
+    
+    其行列式$\lvert H_n \rvert$同时也是这一组基的Gram行列式，由于构成基的向量是线性无关的，因此
+    $$\lvert H_n\rvert=Gram(1,x,x^2,\cdots,x^{n-1})>0.$$
+    故非奇异。
+\end{proof}
+(c)虽然矩阵$H_n$是非奇异的，但是它的行列式随着$n$的增加会迅速减小。事实上，它的行列式竟然有严格的表达式：
+$$\det(H_n)=\frac{c_n^4}{c_{2n}},\ c_n=1!\cdot 2!\cdots(n-1)!.$$
+因此$\det(H_n)$会随着$n$的增加而迅速指数减小。结合上述$\det(H_n)$的表达式，估计出$\det(H_n),n\leqslant 10$的数值（【提示】：取对数）。
+\begin{solution}
+    取对数咯
+    \begin{align}
+    \ln{\det{(H_n)}}&=4\ln {c_n}-\ln{c_{2n}}\notag\\
+    &=4\sum\limits_{i=1}^{n-1}\ln{i!}-\sum\limits_{j=1}^{2n-1}\ln{j!}\notag\\
+    &=4\sum\limits_{i=2}^{n-1}\sum\limits_{r=2}^{i}\ln{r}-\sum\limits_{j=2}^{2n-1}\sum\limits_{s=2}^{j}\ln{s}\notag
+    \end{align}
+    借助程序“$HW1$计物第三题c”可以列表
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{cccccc}
+            \toprule
+            n & 1 & 2 & 3 & 4 & 5\\
+            \midrule
+            ln(det) & 0.000e+00 & -2.485e+00 & -7.678e+00 & -1.562e+01 & -2.631e+01\\
+            det & 1.000e+00 & 8.333e-02 & 4.630e-04 & 1.653e-07 & 3.749e-12\\
+            \bottomrule
+            \toprule
+            n & 6 & 7 & 8 & 9 & 10\\
+            \midrule
+            ln(det) & -3.977e+01 & -5.599e+01 & -7.498e+01 & -9.674e+01 & -1.213e+02\\
+            det & 5.367e-18 & 4.836e-25 & 2.737e-33 & 9.720e-43 & 2.164e-53\\
+            \bottomrule
+        \end{tabular}
+        \caption{“估算”$det(H_n)$}
+    \end{table}
+\end{solution}
+(d)由于Hilbert矩阵的近奇异性，它具有非常巨大的条件数。因此在求解它的线性方程时，误差会被放大。为了有所体会，
+请写两个程序，分别利用GEM和Cholesky分解来求解线性方程$H_n\cdot x=b$，其中$b=(1,1,\cdots,1)\in\mathbb{R}^n$。从小的
+$n$开始并逐步增加$n$（比如说一直到$n=10$），两种方法给出的解有差别吗？如果有，你认为哪一个更为精确呢？简单说明理由。
+\begin{answer}
+    分别使用两种方法编程计算，程序“$HW1$计物第三题d”。得到结果如下。\\
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{ccccccccc}
+            \toprule
+            n & index & 1 & 2 & 3 & 4 & 5 & 6 & 7\\
+            \midrule
+             & GEM & 1.000e+00\\
+            1 & Cholesky & 1.000e+00\\
+             & 实际值 & 1.000e+00\\
+            \midrule
+             & GEM & -2.000e+00 & 6.000e+00\\
+            2 & Cholesky & -2.000e+00 & 6.000e+00\\
+             & 实际值 & -2.000e+00 & 6.000e+00\\
+            \midrule
+            & GEM & 3.000e+00 & -2.400e+01 & 3.000e+01\\
+            3 & Cholesky & 3.000e+00 & -2.400e+01 & 3.000e+01\\
+             & 实际值 & 3.000e+00 & -2.400e+01 & 3.000e+01\\
+            \midrule
+            & GEM & -4.000e+00 & 6.000e+01 & -1.800e+02 & 1.400e+02\\
+            4 & Cholesky & -4.000e+00 & 6.000e+01 & -1.800e+02 & 1.400e+02\\
+             & 实际值 & -4.000e+00 & 6.000e+01 & -1.800e+02 & 1.400e+02\\
+            \midrule
+            & GEM & 5.000e+00 & -1.200e+02 & 6.300e+02 & -1.120e+03 & 6.300e+02\\
+            5 & Cholesky & 5.000e+00 & -1.200e+02 & 6.300e+02 & -1.120e+03 & 6.300e+02\\
+             & 实际值 & 5.000e+00 & -1.200e+02 & 6.300e+02 & -1.120e+03 & 6.300e+02\\
+            \midrule
+            & GEM & -6.000e+00 & 2.100e+02 & -1.680e+03 & 5.040e+03 & -6.300e+03 & 2.772e+03\\
+            6 & Cholesky & -6.000e+00 & 2.100e+02 & -1.680e+03 & 5.040e+03 & -6.300e+03 & 2.772e+03\\
+             & 实际值 & -6.000e+00 & 2.100e+02 & -1.680e+03 & 5.040e+03 & -6.300e+03 & 2.772e+03\\
+            \midrule
+            & GEM & 7.000e+00 & -3.360e+02 & 3.780e+03 & -1.680e+04 & 3.465e+04 & -3.326e+04 & 1.201e+04\\
+            7 & Cholesky & 7.000e+00 & -3.360e+02 & 3.780e+03 & -1.680e+04 & 3.465e+04 & -3.326e+04 & 1.201e+04\\
+             & 实际值 & 7.000e+00 & -3.360e+02 & 3.780e+03 & -1.680e+04 & 3.465e+04 & -3.326e+04 & 1.201e+04\\
+            \bottomrule
+        \end{tabular}
+        \caption{两种方法的计算结果}
+        \ \\
+        \begin{tabular}{ccccccc}
+            \toprule
+            n & index & 1 & 2 & 3 & 4 & 5\\
+            \midrule
+            & GEM & -8.000e+00 & 5.040e+02 & -7.560e+03 & 4.620e+04 & -1.386e+05\\
+             & Cholesky & -8.000e+00 & 5.040e+02 & -7.560e+03 & 4.620e+04 & -1.386e+05\\
+             & 实际值 & -8.000e+00 & 5.040e+02 & -7.560e+03 & 4.620e+04 & -1.386e+05\\
+            \cmidrule{2-7}
+            8 & index & 6 & 7 & 8 & 9 & 10\\
+            \cmidrule{2-7}
+            & GEM & 2.162e+05 & -1.682e+05 & 5.148e+04\\
+             & Cholesky & 2.162e+05 & -1.682e+05 & 5.148e+04\\
+             & 实际值 & 2.162e+05 & -1.682e+05 & 5.148e+04\\
+            \midrule
+            & GEM & 9.000e+00 & -7.200e+02 & 1.386e+04 & -1.109e+05 & 4.504e+05\\
+             & Cholesky & 9.000e+00 & -7.200e+02 & 1.386e+04 & -1.109e+05 & 4.504e+05\\
+             & 实际值 & 9.000e+00 & -7.200e+02 & 1.386e+04 & -1.109e+05 & 4.504e+05\\
+            \cmidrule{2-7}
+            9 & index & 6 & 7 & 8 & 9 & 10\\
+            \cmidrule{2-7}
+            & GEM & -1.009e+06 & 1.261e+06 & -8.237e+05 & 2.188e+05\\
+             & Cholesky & -1.009e+06 & 1.261e+06 & -8.237e+05 & 2.188e+05\\
+             & 实际值 & -1.009e+06 & 1.261e+06 & -8.237e+05 & 2.188e+05\\
+            \bottomrule
+        \end{tabular}
+        \caption{两种方法的计算结果（续表）}
+    \end{table}
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{ccccccc}
+            \toprule
+            n & index & 1 & 2 & 3 & 4 & 5\\
+            \midrule
+            & GEM & -9.998e+00 & 9.898e+02 & -2.376e+04 & 2.402e+05 & -1.261e+06\\
+            & Cholesky & -9.998e+00 & 9.898e+02 & -2.376e+04 & 2.402e+05 & -1.261e+06\\
+            & 实际值 & -1.000e+01 & 9.900e+02 & -2.376e+04 & 2.402e+05 & -1.261e+06\\
+            \cmidrule{2-7}
+            10 & index & 6 & 7 & 8 & 9 & 10\\
+            \cmidrule{2-7}
+            & GEM & 3.783e+06 & -6.726e+06 & 7.001e+06 & -3.938e+06 & 9.237e+05\\
+            & Cholesky & 3.783e+06 & -6.726e+06 & 7.001e+06 & -3.938e+06 & 9.237e+05\\
+            & 实际值 & 3.784e+06 & -6.727e+06 & 7.001e+06 & -3.938e+06 & 9.238e+05\\
+            \bottomrule
+        \end{tabular}
+        \caption{两种方法的计算结果（续续表）}
+    \end{table}
+    其中GEM方法中的三角化过程，使用的是完全支点遴选，实际值是用python库numpy中的线性方程求解函数numpy.linalg.solve得到的。
+    两种方法得到的结果几乎没有差别，而且直到$n=10$才与实际值出现分歧。
+
+    试试更大的$n$，当$n=11$时得到结果如下。\\
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{cccccccc}
+            \toprule
+            n & index & 1 & 2 & 3 & 4 & 5 & 6 \\
+            \midrule
+            & GEM & 1.095e+01 & -1.315e+03 & 3.848e+04 & -4.790e+05 & 3.144e+06 & -1.208e+07\\
+            & Cholesky & 1.096e+01 & -1.316e+03 & 3.850e+04 & -4.792e+05 & 3.146e+06 & -1.208e+07\\
+            & 实际值 & 1.102e+01 & -1.322e+03 & 3.866e+04 & -4.811e+05 & 3.157e+06 & -1.212e+07\\
+            \cmidrule{2-8}
+            11 & index & 7 & 8 & 9 & 10 & 11 \\
+            \cmidrule{2-8}
+            & GEM & 2.852e+07 & -4.192e+07 & 3.734e+07 & -1.844e+07 &  3.873e+06\\
+            & Cholesky & 2.853e+07 & -4.193e+07 & 3.735e+07 & -1.845e+07 & 3.874e+06\\
+            & 实际值 & 2.861e+07 & -4.204e+07 & 3.744e+07 & -1.849e+07 & 3.883e+06\\
+            \bottomrule
+        \end{tabular}
+        \caption{两种方法的计算结果（续续表）}
+    \end{table}    
+    两种方法开始出现了差别，看出Cholesky更接近实际值一点，这是因为GEM本质是LU分解，而Cholesky方法比LU方法计算次数大约节省一半，故Cholesky方法稳定性更好，误差更小。
+\end{answer}
+4.\textbf{级数求和与截断误差}\  计算级数与积分的差
+$$f(q^2)=\left(\sum\limits_{\bm{n}\in\mathbb{Z}^3}-\int d^3\bm{n}\right)\frac{1}{\lvert\bm{n}\rvert^2-q^2},$$
+这里$\mathbb{Z}$为三维矢量的集合，当$\bm{n}=(n_1,n_2,n_3)\in\mathbb{Z}^3$时，$n_1,n_2,n_3$全为整数。
+
+(a)请求出$f(q^2)$在$q^2=0.5$处的值。
+\begin{solution}
+    瑕积分可以比较容易地处理，是主值收敛意义下的结果。取截断上限为$\Lambda$。
+    \begin{align}
+        &\int d^3\bm{n}\frac{1}{\lvert\bm{n}\rvert^2-0.5}\notag\\
+        =&4\pi\int_{0}^{\Lambda}\frac{r^2dr}{r^2-0.5}\notag\\
+        =&4\pi\int_0^{\Lambda}(dr+\frac{0.5dr}{r^2-0.5})\notag\\
+        =&4\pi \Lambda+\sqrt{2}\pi\ln{\frac{\sqrt{2}\Lambda-1}{\sqrt{2}\Lambda+1}}.\notag
+    \end{align}
+    级数借助程序求和，源代码已经丢失，反正没有价值。取截断为$\Lambda=500,1000,1500,2000$，得到差值的结果如下。
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{ccccc}
+            \toprule
+            $\Lambda$ & 500 & 1000 & 1500 & 2000 \\
+            \midrule
+            result & 1.0794212099026481 & 1.0974490844291722 & 1.0954779751773458 & 1.0985571508099383\\
+            \bottomrule
+        \end{tabular}
+        \caption{计算结果}
+    \end{table}
+    由于穷举复杂度过高，仅计算到$\Lambda=2000.$
+\end{solution}
+
+\textbf{寻求到了更好的方法，打算直接从第三小题开始写。}
+
+(c)有没有办法改变$f(q^2)$的表达形式，使得计算$f(q^2)$的效率远高于题干中公式给出的级数求和的效率。
+\begin{solution}
+    主要考虑改变级数的形式。设
+    $$g(q,\bm{r})=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}}{\lvert\bm{n}\rvert^2-q^2}.$$
+    进行一些变换
+    \begin{align}
+        g(q,\bm{r})&=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}}{\lvert\bm{n}\rvert^2-q^2}\notag\\
+        &=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}
+        +\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}[1-e^{-(\lvert\bm{n}\rvert^2-q^2)}]}{\lvert\bm{n}\rvert^2-q^2}\notag\\
+        &=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}
+        +\sum\limits_{\bm{n}\in\mathbb{Z}^3}\int_{0}^{1}dte^{i\bm{n}\cdot\bm{r}-t(\lvert\bm{n}\rvert^2-q^2)}\notag\\
+        &=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}
+        +\int_{0}^{1}dt e^{tq^2}\sum\limits_{\bm{n}\in\mathbb{Z}^3}e^{i\bm{n}\cdot\bm{r}-t\lvert\bm{n}\rvert^2}.\notag
+    \end{align}
+    第二项中的求和用Poisson求和公式
+    \begin{align}
+        \sum\limits_{\bm{n}\in\mathbb{Z}^3}e^{i\bm{n}\cdot\bm{r}-t\lvert\bm{n}\rvert^2}&=\sum\limits_{\bm{m}\in\mathbb{Z}^3}\mathcal{F}(e^{i\bm{n}\cdot\bm{r}-t\lvert\bm{n}\rvert^2})\notag\\
+        &=\sum\limits_{\bm{m}\in\mathbb{Z}^3}\int d^3\bm{n}e^{i\bm{n}\cdot\bm{r}-t\lvert\bm{n}\rvert^2}e^{-2\pi i\bm{m}\cdot\bm{n}}\notag\\
+        &=\sum\limits_{\bm{m}\in\mathbb{Z}^3}\int d^3\bm{n}e^{i\bm{n}\cdot(\bm{r}-2\pi\bm{n})-t\lvert\bm{n}\rvert^2}\notag\\
+        &=\sum\limits_{\bm{m}\in\mathbb{Z}^3}2\pi\int_{0}^{\infty}dn n^2\int_{0}^{\pi}d\theta\sin{\theta}e^{i\lvert\bm{r}-2\pi\bm{m}\rvert n\cos{\theta}-t\lvert\bm{n}\rvert^2}\notag\\
+        &=\sum\limits_{\bm{m}\in\mathbb{Z}^3}2\pi\int_{0}^{\infty}dn n^2\frac{2\sin{(\lvert\bm{r}-2\pi\bm{m}n)}}{\lvert\bm{r}-2\pi\bm{m}\rvert n}e^{-tn^2}\notag\\
+        &=\sum\limits_{\bm{m}\in\mathbb{Z}^3}\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{\lvert\bm{r}-2\pi\bm{m}\rvert^2}{4t}}.\notag
+    \end{align}
+    那么上面那个函数可以继续往下写
+    \begin{align}
+        g(q,\bm{r})&=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}
+        +\int_{0}^{1}dt e^{tq^2}\sum\limits_{\bm{n}\in\mathbb{Z}^3}e^{i\bm{n}\cdot\bm{r}-t\lvert\bm{n}\rvert^2}\notag\\
+        &=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}+
+        \int_{0}^{1}dte^{tq^2}\sum\limits_{\bm{m}\in\mathbb{Z}^3}\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{\lvert\bm{r}-2\pi\bm{m}\rvert^2}{4t}}.\notag
+    \end{align}
+    令$\bm{r}=0$，则得到
+    $$ g(q,\bm{0})=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}+
+        \int_{0}^{1}dte^{tq^2}\sum\limits_{\bm{m}\in\mathbb{Z}^3}\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{\pi^2\lvert\bm{m}\rvert^2}{t}}.$$
+    其中第二项的积分在$\bm{m}=0$情形不收敛，需要对原问题中的积分也进行边。设
+    $$h(q,\bm{r})=\int d^3\bm{n}\frac{e^{i\bm{n}\cdot\bm{r}}}{\lvert\bm{n}\rvert^2-q^2}.$$
+    进行变形
+    \begin{align}
+        h(q,\bm{r})&=2\pi\int_{0}^{\infty}dnn^2\int_{0}^{\pi}d\theta\sin{\theta}\frac{e^{inr\cos{\theta}}}{n^2-q^2}\notag\\
+        &=4\pi\int_{0}^{\infty}dnn^2\frac{\sin{(nr)}}{nr}\frac{1}{n^2-q^2}\notag\\
+        &=\frac{2\pi}{r}\int_{-\infty}^{\infty}dn\frac{n\sin{(nr)}}{n^2-q^2}\notag\\
+        &=\frac{2\pi}{r}\Im{\left(\int_{-\infty}^{\infty}dn\frac{ne^{inr}}{n^2-q^2}\right)}\notag\\
+        &=\frac{2\pi^2\cos{qr}}{r}\notag\\
+        &=\frac{2\pi^2}{r}+O(r)\notag\\
+        &=\int_{0}^{\infty}dt \left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{r^2}{4t}}+O(r).\notag
+    \end{align}
+    级数与积分相减
+    \begin{align}
+        g(q,\bm{r})-h(q,\bm{r})=&\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}+
+        \int_{0}^{1}dte^{tq^2}\sum\limits_{\bm{m}\in\mathbb{Z}^3}\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{\lvert\bm{r}-2\pi\bm{m}\rvert^2}{4t}}-\int_{0}^{\infty}dt \left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{r^2}{4t}}+O(r)\notag\\
+        =&\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{i\bm{n}\cdot\bm{r}}e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}+
+        \int_{0}^{1}dte^{tq^2}\sum\limits_{\bm{m}\in\mathbb{Z}^3,\bm{m}\neq0}\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{\lvert\bm{r}-2\pi\bm{m}\rvert^2}{4t}}-\int_{1}^{\infty}dt \left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{r^2}{4t}}\notag\\
+        &+\int_{0}^{1}dt(e^{tq^2}-1)\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{r^2}{4t}}+O(r).\notag
+    \end{align}
+    令$\bm{r}=0$，得到原问题的另一形式
+    \begin{align}
+        f(q^2)&=g(q,\bm{0})-h(q,\bm{0})\notag\\
+        &=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}+
+        \int_{0}^{1}dte^{tq^2}\sum\limits_{\bm{m}\in\mathbb{Z}^3,\bm{m}\neq0}\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{\pi^2\lvert\bm{m}\rvert^2}{t}}-\int_{1}^{\infty}dt \left(\frac{\pi}{t}\right)^{\frac{3}{2}}+\int_{0}^{1}dt(e^{tq^2}-1)\left(\frac{\pi}{t}\right)^{\frac{3}{2}}+O(r)\notag\\
+        &=\sum\limits_{\bm{n}\in\mathbb{Z}^3}\frac{e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}+
+        \int_{0}^{1}dte^{tq^2}\sum\limits_{\bm{m}\in\mathbb{Z}^3,\bm{m}\neq0}\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{\pi^2\lvert\bm{m}\rvert^2}{t}}-2\pi^{\frac{3}{2}}e^{q^2}+2\pi^2q\ Erfi(q).\notag
+    \end{align}
+    该式中的求和项均存在负指数，收敛更快，在同样的误差要求下，截断半径更小，计算效率更高。
+\end{solution}
+(b)引入截断$\Lambda$使得$\lvert\bm{n}\rvert\leqslant\Lambda$。要使$f(q^2=0.5)$的计算精度达到$10^{-5}$，需要$\Lambda$多大？
+\begin{solution}
+    稍微估计一下截断半径球外的求和的值，近似为积分即可。
+    \begin{align}
+        &\sum\limits_{\bm{n}\in\mathbb{Z}^3,\lvert\bm{n}\rvert\geqslant\Lambda}\frac{e^{-(\lvert\bm{n}\rvert^2-q^2)}}{\lvert\bm{n}\rvert^2-q^2}+\int_{0}^{1}dte^{tq^2}\sum\limits_{\bm{m}\in\mathbb{Z}^3,\bm{m}\geqslant \Lambda}\left(\frac{\pi}{t}\right)^{\frac{3}{2}}e^{-\frac{\pi^2\lvert\bm{m}\rvert^2}{t}}\notag\\
+        =&4\pi\int_{\Lambda}^{\infty}dnn^2\frac{e^{-(n^2-q^2)}}{n^2-q^2}+\int_{0}^{1}dte^{tq^2}4\pi\int_{\Lambda}^{\infty}dn\left(\frac{\pi}{t}\right)^{\frac{3}{2}}n^2e^{-\frac{\pi^2\lvert\bm{n}\rvert^2}{t}}\notag\\
+        \approx&4\pi\int_{\Lambda}^{\infty}dne^{-(n^2-q^2)}+\int_{0}^{1}dte^{tq^2}4\pi\int_{\Lambda}^{\infty}dn\left(\frac{\pi}{t}\right)^{\frac{3}{2}}n^2e^{-\frac{\pi^2\lvert\bm{n}\rvert^2}{t}}\notag\\
+        =&2\pi^{\frac{3}{2}}e^{q^2}Erfc(\Lambda)+\int_{0}^{1}dte^{tq^2}4\pi\left(\frac{\pi}{t}\right)^{\frac{3}{2}}\left(\frac{e^{-\frac{\pi^2\Lambda^2}{t}}t\Lambda}{2\pi^2}+\frac{t^{3/2}Erfc\left(\frac{\pi\Lambda}{\sqrt{t}}\right)}{4\pi^{5/2}}\right)\notag\\
+        \approx&2\pi^{\frac{3}{2}}e^{q^2}Erfc(\Lambda).\notag
+    \end{align}
+    大约截断在$\Lambda=4$就能获得$10^{-5}$的精度。借由程序“$HW1$计物第四题”可得到如下结果
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{ccccccc}
+            \toprule
+            $\Lambda$ & 1 & 2 & 3 & 4 & 5 & 6\\
+            \midrule
+            result & -1.0722215 & 1.0272587 & 1.1059429 & 1.1062141 & 1.1062144 & 1.1062144\\
+            \bottomrule
+        \end{tabular}
+        \caption{不同截断所得结果}
+    \end{table}
+    可以看出在$\Lambda=4$时计算所得精度就能达到$10^{-5}$，值为$1.10621$。
+\end{solution}
+(a)请求出$f(q^2)$在$q^2=0.5$处的值。
+\begin{answer}
+    不可能有精确值。
+\end{answer}
+\end{document}
